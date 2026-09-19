@@ -125,3 +125,8 @@ further.
 | `report.py` | HTML dashboard renderer |
 | `watchlist.json` | your items, costs, fees, hub |
 | `snapshot.json` | last run's raw numbers (regenerated, safe to delete) |
+
+## License
+
+MIT - see [LICENSE](LICENSE). Not affiliated with or endorsed by CCP Games.
+EVE Online and all related assets are the property of CCP hf.
