@@ -3,7 +3,7 @@
     python server.py            -> http://127.0.0.1:8765
 
 Paste what you want to sell, get the exact price to list each item at.
-Binds to localhost only; nothing is exposed to the network.
+Binds to localhost by default; pass --host 0.0.0.0 to serve it to your LAN.
 """
 
 import argparse
@@ -238,12 +238,17 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     ap = argparse.ArgumentParser(description="Local paste-and-price page")
     ap.add_argument("--port", type=int, default=8765)
+    ap.add_argument("--host", default="127.0.0.1",
+                    help="interface to bind; 0.0.0.0 exposes the page to your "
+                         "whole network (the page has no login, so only do this "
+                         "on a network you trust)")
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args()
 
-    url = f"http://127.0.0.1:{args.port}"
-    srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"Market watch running at {url}   (ctrl-c to stop)")
+    url = f"http://{'127.0.0.1' if args.host in ('0.0.0.0', '') else args.host}:{args.port}"
+    srv = ThreadingHTTPServer((args.host, args.port), Handler)
+    where = "all interfaces" if args.host == "0.0.0.0" else args.host
+    print(f"Market watch running at {url}   (bound to {where}, ctrl-c to stop)")
     if not args.no_browser:
         webbrowser.open(url)
     try:

@@ -8,3 +8,6 @@ server.log
 
 __pycache__/
 *.pyc
+
+# local agent permission rules - never publish these
+.claude/
