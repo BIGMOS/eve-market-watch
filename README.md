@@ -104,6 +104,32 @@ further.
    the market is being dumped and you get a warning instead of a race to the
    bottom.
 
+## Station-only vs whole region
+
+By default the tool only counts orders at the hub station itself. Tick **whole
+region** (or pass `--region-wide`) and it counts every station and structure in
+that region instead.
+
+This matters more than it sounds. Same item, same moment, in Metropolis:
+
+| | Best sell | Margin | Competition within 5% |
+|---|---|---|---|
+| Hek station only | 444.30k | 42.4% | 7 orders, 979 units |
+| Whole region | 405.50k | 30.0% | 3 orders, 144 units |
+
+Region-wide drags your suggested price down to match someone selling elsewhere
+in the region - 12 points of margin. When it does, it now tells you where they
+are:
+
+> Region-wide: the cheapest order (405.50k, 96 units within 2% of it) is at
+> Tratokard II - Moon 1 - CONCORD Bureau. If you are not selling there, that
+> order is only competing with you if buyers will travel.
+
+So you can judge it yourself. Buyers shop at hubs; an order 12 jumps out in a
+quiet system is usually not taking your sale, and matching it just gives away
+margin. Player structures show as "a player structure in <system>" - naming them
+needs an authenticated ESI scope this tool does not use.
+
 ## Caveats
 
 - **"Sells in" assumes you stay the cheapest order.** In a trade hub you'll be

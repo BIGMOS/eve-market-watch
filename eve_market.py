@@ -78,6 +78,35 @@ def fetch_history(region_id, type_id):
         return []
 
 
+_LOC_CACHE = {}
+
+
+def location_name(location_id, system_id):
+    """Human name for where an order sits.
+
+    NPC stations resolve by id. Player structures need an authenticated scope
+    we do not have, so fall back to the solar system, which is always public.
+    """
+    if location_id in _LOC_CACHE:
+        return _LOC_CACHE[location_id]
+
+    name = None
+    if location_id < 100_000_000:                      # NPC station range
+        try:
+            name = get(f"/universe/stations/{location_id}/").json().get("name")
+        except requests.HTTPError:
+            name = None
+    if not name and system_id:
+        try:
+            sys_name = get(f"/universe/systems/{system_id}/").json().get("name")
+            name = f"a player structure in {sys_name}"
+        except requests.HTTPError:
+            name = None
+
+    _LOC_CACHE[location_id] = name or "an unnamed location"
+    return _LOC_CACHE[location_id]
+
+
 def weighted_avg(hist, days):
     """Volume-weighted average price over the last N days of history."""
     tail = hist[-days:] if hist else []
@@ -102,6 +131,11 @@ def analyse(item, region_id, station_id, fees, defaults):
 
     best_sell = sells[0]["price"] if sells else None
     best_buy = buys[0]["price"] if buys else None
+
+    # only meaningful region-wide; at a single station everything is there
+    cheapest_at = None
+    if sells and station_id is None:
+        cheapest_at = location_name(sells[0]["location_id"], sells[0].get("system_id"))
 
     avg7, vol7, _ = weighted_avg(hist, 7)
     avg30, vol30, n30 = weighted_avg(hist, 30)
@@ -194,6 +228,15 @@ def analyse(item, region_id, station_id, fees, defaults):
             why.append(f"Top of book is {(price / anchor - 1) * 100:.0f}% over the 7d "
                        f"average - thin book, this price may not hold.")
 
+    if cheapest_at:
+        undercut_ahead = sum(o["volume_remain"] for o in sells
+                             if o["location_id"] == sells[0]["location_id"]
+                             and o["price"] <= best_sell * 1.02)
+        why.append(f"Region-wide: the cheapest order ({isk(best_sell)}, "
+                   f"{undercut_ahead:,.0f} units within 2% of it) is at "
+                   f"{cheapest_at}. If you are not selling there, that order is "
+                   f"only competing with you if buyers will travel.")
+
     net = price * keep if price else None
     profit_each = (net - cost) if (net is not None and cost) else None
     margin = (profit_each / cost * 100) if (profit_each is not None and cost) else None
@@ -216,6 +259,7 @@ def analyse(item, region_id, station_id, fees, defaults):
         "days_to_sell": days_final, "ahead": ahead_final,
         "buyorder_net": buy_net,
         "rec": rec, "why": why, "history_days": n30,
+        "cheapest_at": cheapest_at,
     }
 
 
