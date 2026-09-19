@@ -3,6 +3,20 @@
 Reads live order books and price history from ESI (public, no login or API key)
 and tells you what to list your products at.
 
+It is built for sellers rather than station traders: it weighs the order book
+against what an item actually costs *you*, and will tell you not to undercut
+when undercutting means selling at a loss.
+
+## Requirements
+
+Python 3.8+ and `requests`:
+
+```bash
+pip install requests
+```
+
+No API key, no login, no ESI scopes - all market data used here is public.
+
 ## Paste what you're selling
 
 ```bash
