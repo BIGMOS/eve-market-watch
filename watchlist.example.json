@@ -1,0 +1,76 @@
+{
+  "_readme": [
+    "Edit this file - it is the only thing you need to maintain.",
+    "hub: jita | amarr | dodixie | rens | hek",
+    "fees.broker_pct: 3.0 with no skills, 1.5 at Broker Relations V, lower with standings.",
+    "fees.sales_tax_pct: 8.0 with no skills, 3.6 at Accounting V.",
+    "items[].cost: what ONE unit costs you (build cost or purchase price).",
+    "            Leave null if you don't know - you still get market data,",
+    "            but no margin, no profit floor and no HOLD warnings.",
+    "items[].qty: how many you have to sell.",
+    "items[].min_margin: optional per-item override of defaults.min_margin (percent).",
+    "COSTS BELOW ARE PLACEHOLDERS - replace them with your real numbers."
+  ],
+  "hub": "jita",
+  "region_wide": false,
+  "fees": {
+    "broker_pct": 1.5,
+    "sales_tax_pct": 3.6
+  },
+  "defaults": {
+    "min_margin": 15,
+    "tick": 0.01
+  },
+  "items": [
+    {
+      "name": "Hobgoblin II",
+      "qty": 500,
+      "cost": null
+    },
+    {
+      "name": "Damage Control II",
+      "qty": 120,
+      "cost": null
+    },
+    {
+      "name": "Large Shield Extender II",
+      "qty": 80,
+      "cost": null
+    },
+    {
+      "name": "425mm AutoCannon II",
+      "qty": 60,
+      "cost": null
+    },
+    {
+      "name": "Multispectrum Shield Hardener II",
+      "qty": 90,
+      "cost": null
+    },
+    {
+      "name": "Scourge Fury Heavy Missile",
+      "qty": 50000,
+      "cost": null
+    },
+    {
+      "name": "Nanite Repair Paste",
+      "qty": 4000,
+      "cost": null
+    },
+    {
+      "name": "Caracal",
+      "qty": 15,
+      "cost": null
+    },
+    {
+      "name": "Rifter",
+      "qty": 25,
+      "cost": null
+    },
+    {
+      "name": "Warrior II",
+      "qty": 400,
+      "cost": null
+    }
+  ]
+}

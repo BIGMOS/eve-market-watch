@@ -1,0 +1,10 @@
+# your own trading data - costs, quantities, margins
+watchlist.json
+
+# generated output
+report.html
+snapshot.json
+server.log
+
+__pycache__/
+*.pyc
