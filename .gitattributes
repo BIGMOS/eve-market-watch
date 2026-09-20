@@ -1,0 +1,11 @@
+# Pin line endings to LF in the repository, independent of each contributor's
+# core.autocrlf setting. Nothing is currently broken -- autocrlf=true already
+# stores LF -- but a contributor with autocrlf=false on Windows could commit
+# CRLF, and eve_market.py carries a `#!/usr/bin/env python3` shebang that dies
+# on Linux with "bad interpreter: ...^M" if a CR ever reaches the blob.
+* text=auto eol=lf
+
+*.py    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
