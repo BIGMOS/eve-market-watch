@@ -5,6 +5,10 @@ watchlist.json
 report.html
 snapshot.json
 server.log
+collect.log
+
+# measured station fill rates - local observations, not shared
+bookstate.json
 
 __pycache__/
 *.pyc

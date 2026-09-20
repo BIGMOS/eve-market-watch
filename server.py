@@ -11,13 +11,17 @@ import html
 import json
 import webbrowser
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import eve_market
 import paste
 import report
-from eve_market import HUBS, analyse, resolve_names
+from eve_market import (HUBS, analyse, ensure_watchlist, load_bookstate,
+                        resolve_names, save_bookstate)
 
-WATCHLIST = "watchlist.json"
+# Beside the script rather than in the cwd; main() re-points it for --watchlist.
+WATCHLIST = eve_market.WATCHLIST
 
 PAGE = """<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -171,8 +175,19 @@ def do_analyse(body):
     region = HUBS[hub]["region"]
     station = None if body.get("region_wide") else HUBS[hub]["station"]
 
+    # same book-diff measurement the CLI does, so both surfaces learn the real
+    # station fill rate and share one bookstate.json
+    state = load_bookstate()
+    scope = str(station) if station else f"region{region}"
+    now = datetime.now(timezone.utc)
     with ThreadPoolExecutor(max_workers=8) as ex:
-        rows = list(ex.map(lambda it: analyse(it, region, station, fees, defaults), items))
+        rows = list(ex.map(
+            lambda it: analyse(it, region, station, fees, defaults,
+                               state.get(f"{it['type_id']}@{scope}"), now),
+            items))
+    for r in rows:
+        state[f"{r['type_id']}@{scope}"] = r.pop("_state")
+    save_bookstate(state)
     rows.sort(key=lambda r: -((r["price"] or 0) * r["qty"]))
 
     return {
@@ -243,7 +258,13 @@ def main():
                          "whole network (the page has no login, so only do this "
                          "on a network you trust)")
     ap.add_argument("--no-browser", action="store_true")
+    ap.add_argument("--watchlist", default=None,
+                    help="watchlist file (default: watchlist.json beside this script, "
+                         "created from watchlist.example.json on first run)")
     args = ap.parse_args()
+
+    global WATCHLIST
+    WATCHLIST = ensure_watchlist(args.watchlist)
 
     url = f"http://{'127.0.0.1' if args.host in ('0.0.0.0', '') else args.host}:{args.port}"
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
